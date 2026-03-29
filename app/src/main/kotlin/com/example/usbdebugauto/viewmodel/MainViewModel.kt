@@ -17,6 +17,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
@@ -54,14 +56,28 @@ class MainViewModel : ViewModel() {
         settingsController = SecureSettingsController(context, logRepository)
         usbEvaluator = UsbDetectionEvaluator(logRepository)
 
-        // Initialize settings flows
-        automationEnabled = settingsRepository.automationEnabled.asStateFlow()
-        autoEnableDeveloperOptions = settingsRepository.autoEnableDeveloperOptions.asStateFlow()
-        autoEnableAdb = settingsRepository.autoEnableAdb.asStateFlow()
-        autoDisableDeveloperOptions = settingsRepository.autoDisableDeveloperOptions.asStateFlow()
-        autoDisableAdb = settingsRepository.autoDisableAdb.asStateFlow()
-        detectionMode = settingsRepository.detectionMode.asStateFlow()
-        delaySeconds = settingsRepository.delaySeconds.asStateFlow()
+        // Initialize settings flows - convert from Flow to StateFlow
+        automationEnabled = settingsRepository.automationEnabled.stateIn(
+            viewModelScope, SharingStarted.Lazily, true
+        )
+        autoEnableDeveloperOptions = settingsRepository.autoEnableDeveloperOptions.stateIn(
+            viewModelScope, SharingStarted.Lazily, true
+        )
+        autoEnableAdb = settingsRepository.autoEnableAdb.stateIn(
+            viewModelScope, SharingStarted.Lazily, true
+        )
+        autoDisableDeveloperOptions = settingsRepository.autoDisableDeveloperOptions.stateIn(
+            viewModelScope, SharingStarted.Lazily, false
+        )
+        autoDisableAdb = settingsRepository.autoDisableAdb.stateIn(
+            viewModelScope, SharingStarted.Lazily, false
+        )
+        detectionMode = settingsRepository.detectionMode.stateIn(
+            viewModelScope, SharingStarted.Lazily, DetectionMode.BALANCED
+        )
+        delaySeconds = settingsRepository.delaySeconds.stateIn(
+            viewModelScope, SharingStarted.Lazily, 0
+        )
 
         // Collect logs
         viewModelScope.launch {

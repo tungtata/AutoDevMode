@@ -5,9 +5,12 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -399,33 +402,30 @@ fun DetectionModeSelector(
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .border(1.dp, MaterialTheme.colorScheme.outline, shape = RoundedCornerShape(4.dp))
+                .clickable { expanded = !expanded }
+                .padding(12.dp)
         ) {
-            TextField(
-                value = currentMode.name,
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(),
-                colors = ExposedDropdownMenuDefaults.textFieldColors()
-            )
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                DetectionMode.entries.forEach { mode ->
-                    DropdownMenuItem(
-                        text = { Text(mode.name) },
-                        onClick = {
-                            onModeSelected(mode)
-                            expanded = false
-                        }
-                    )
-                }
+            Text(currentMode.name)
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            DetectionMode.entries.forEach { mode ->
+                DropdownMenuItem(
+                    text = { Text(mode.name) },
+                    onClick = {
+                        onModeSelected(mode)
+                        expanded = false
+                    }
+                )
             }
         }
     }
@@ -445,33 +445,30 @@ fun DelaySelector(
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .border(1.dp, MaterialTheme.colorScheme.outline, shape = RoundedCornerShape(4.dp))
+                .clickable { expanded = !expanded }
+                .padding(12.dp)
         ) {
-            TextField(
-                value = "$currentDelay seconds",
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(),
-                colors = ExposedDropdownMenuDefaults.textFieldColors()
-            )
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                delayOptions.forEach { delay ->
-                    DropdownMenuItem(
-                        text = { Text("$delay seconds") },
-                        onClick = {
-                            onDelaySelected(delay)
-                            expanded = false
-                        }
-                    )
-                }
+            Text("$currentDelay seconds")
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            delayOptions.forEach { delay ->
+                DropdownMenuItem(
+                    text = { Text("$delay seconds") },
+                    onClick = {
+                        onDelaySelected(delay)
+                        expanded = false
+                    }
+                )
             }
         }
     }
