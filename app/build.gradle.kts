@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.usbdebugauto"
+    namespace = "com.tungtata.usbdebugauto"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.usbdebugauto"
+        applicationId = "com.tungtata.usbdebugauto"
         minSdk = 26
         targetSdk = 34
         versionCode = 1

@@ -1,14 +1,14 @@
-package com.example.usbdebugauto.receiver
+package com.tungtata.usbdebugauto.receiver
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.example.usbdebugauto.controller.SecureSettingsController
-import com.example.usbdebugauto.model.SettingOperationResult
-import com.example.usbdebugauto.model.UsbDetectionResult
-import com.example.usbdebugauto.repository.LogRepository
-import com.example.usbdebugauto.repository.SettingsRepository
-import com.example.usbdebugauto.usb.UsbDetectionEvaluator
+import com.tungtata.usbdebugauto.controller.SecureSettingsController
+import com.tungtata.usbdebugauto.model.SettingOperationResult
+import com.tungtata.usbdebugauto.model.UsbDetectionResult
+import com.tungtata.usbdebugauto.repository.LogRepository
+import com.tungtata.usbdebugauto.repository.SettingsRepository
+import com.tungtata.usbdebugauto.usb.UsbDetectionEvaluator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

@@ -1,4 +1,4 @@
-package com.example.usbdebugauto.model
+package com.tungtata.usbdebugauto.model
 
 /**
  * Detection mode for determining USB data vs charge-only

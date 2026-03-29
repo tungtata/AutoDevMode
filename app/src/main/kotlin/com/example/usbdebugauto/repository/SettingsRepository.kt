@@ -1,10 +1,10 @@
-package com.example.usbdebugauto.repository
+package com.tungtata.usbdebugauto.repository
 
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
-import com.example.usbdebugauto.model.DetectionMode
+import com.tungtata.usbdebugauto.model.DetectionMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

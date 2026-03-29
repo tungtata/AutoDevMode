@@ -6,7 +6,7 @@
     <string name="not_granted">NOT GRANTED</string>
     <string name="check_permission">Check Permission</string>
     <string name="copy_adb_command">Copy ADB Command</string>
-    <string name="adb_command">adb shell pm grant com.example.usbdebugauto android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="adb_command">adb shell pm grant com.tungtata.usbdebugauto android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="enable_automation">Enable Automation</string>
     <string name="auto_enable_dev_options">Auto Enable Developer Options</string>
     <string name="auto_enable_adb">Auto Enable USB Debugging</string>

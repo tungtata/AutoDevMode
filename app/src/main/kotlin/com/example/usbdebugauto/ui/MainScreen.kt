@@ -1,4 +1,4 @@
-package com.example.usbdebugauto.ui
+package com.tungtata.usbdebugauto.ui
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -23,9 +23,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.usbdebugauto.R
-import com.example.usbdebugauto.model.DetectionMode
-import com.example.usbdebugauto.viewmodel.MainViewModel
+import com.tungtata.usbdebugauto.R
+import com.tungtata.usbdebugauto.model.DetectionMode
+import com.tungtata.usbdebugauto.viewmodel.MainViewModel
 
 @Composable
 fun MainScreen(viewModel: MainViewModel, context: Context) {

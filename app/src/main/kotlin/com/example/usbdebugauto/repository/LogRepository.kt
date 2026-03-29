@@ -1,6 +1,6 @@
-package com.example.usbdebugauto.repository
+package com.tungtata.usbdebugauto.repository
 
-import com.example.usbdebugauto.model.LogEntry
+import com.tungtata.usbdebugauto.model.LogEntry
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

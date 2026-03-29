@@ -1,18 +1,18 @@
-package com.example.usbdebugauto.viewmodel
+package com.tungtata.usbdebugauto.viewmodel
 
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.usbdebugauto.controller.SecureSettingsController
-import com.example.usbdebugauto.model.DetectionMode
-import com.example.usbdebugauto.model.LogEntry
-import com.example.usbdebugauto.model.UsbDetectionResult
-import com.example.usbdebugauto.receiver.UsbStateReceiver
-import com.example.usbdebugauto.repository.LogRepository
-import com.example.usbdebugauto.repository.SettingsRepository
-import com.example.usbdebugauto.usb.UsbDetectionEvaluator
+import com.tungtata.usbdebugauto.controller.SecureSettingsController
+import com.tungtata.usbdebugauto.model.DetectionMode
+import com.tungtata.usbdebugauto.model.LogEntry
+import com.tungtata.usbdebugauto.model.UsbDetectionResult
+import com.tungtata.usbdebugauto.receiver.UsbStateReceiver
+import com.tungtata.usbdebugauto.repository.LogRepository
+import com.tungtata.usbdebugauto.repository.SettingsRepository
+import com.tungtata.usbdebugauto.usb.UsbDetectionEvaluator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -65,6 +65,10 @@ class MainViewModel : ViewModel() {
 
     private val _adbEnabled = MutableStateFlow<Boolean?>(null)
     val adbEnabled: StateFlow<Boolean?> = _adbEnabled.asStateFlow()
+
+    // Toast notification option
+    private val _showStatusToast = MutableStateFlow(false)
+    val showStatusToast: StateFlow<Boolean> = _showStatusToast.asStateFlow()
 
     /**
      * Initialize the ViewModel with context
@@ -256,6 +260,10 @@ class MainViewModel : ViewModel() {
             logRepository.addLog("Manual: Disabling USB Debugging...")
             settingsController.setAdbEnabled(false)
         }
+    }
+
+    fun setShowStatusToast(show: Boolean) {
+        _showStatusToast.value = show
     }
 
     fun clearLogs() {

@@ -1,4 +1,4 @@
-package com.example.usbdebugauto.ui.theme
+package com.tungtata.usbdebugauto.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

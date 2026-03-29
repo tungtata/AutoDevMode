@@ -1,9 +1,9 @@
-package com.example.usbdebugauto.controller
+package com.tungtata.usbdebugauto.controller
 
 import android.content.Context
 import android.provider.Settings
-import com.example.usbdebugauto.model.SettingOperationResult
-import com.example.usbdebugauto.repository.LogRepository
+import com.tungtata.usbdebugauto.model.SettingOperationResult
+import com.tungtata.usbdebugauto.repository.LogRepository
 
 class SecureSettingsController(
     private val context: Context,
@@ -13,7 +13,7 @@ class SecureSettingsController(
     /**
      * Check if the app has been granted WRITE_SECURE_SETTINGS permission via ADB
      * Note: This permission cannot be self-granted and must be given via:
-     * adb shell pm grant com.example.usbdebugauto android.permission.WRITE_SECURE_SETTINGS
+     * adb shell pm grant com.tungtata.usbdebugauto android.permission.WRITE_SECURE_SETTINGS
      */
     fun isWriteSecureSettingsGranted(): Boolean {
         return try {

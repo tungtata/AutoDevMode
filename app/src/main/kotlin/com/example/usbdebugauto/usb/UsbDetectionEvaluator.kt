@@ -1,10 +1,10 @@
-package com.example.usbdebugauto.usb
+package com.tungtata.usbdebugauto.usb
 
 import android.content.Intent
-import com.example.usbdebugauto.model.DetectionMode
-import com.example.usbdebugauto.model.UsbDetectionResult
-import com.example.usbdebugauto.model.UsbState
-import com.example.usbdebugauto.repository.LogRepository
+import com.tungtata.usbdebugauto.model.DetectionMode
+import com.tungtata.usbdebugauto.model.UsbDetectionResult
+import com.tungtata.usbdebugauto.model.UsbState
+import com.tungtata.usbdebugauto.repository.LogRepository
 
 class UsbDetectionEvaluator(private val logRepository: LogRepository) {
 
