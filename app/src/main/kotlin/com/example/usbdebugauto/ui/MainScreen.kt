@@ -18,6 +18,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -43,6 +44,8 @@ fun MainScreen(viewModel: MainViewModel, context: Context) {
     val detectionMode by viewModel.detectionMode.collectAsState()
     val delaySeconds by viewModel.delaySeconds.collectAsState()
     val logs by viewModel.logs.collectAsState()
+    val developerOptionsEnabled by viewModel.developerOptionsEnabled.collectAsState()
+    val adbEnabled by viewModel.adbEnabled.collectAsState()
 
     val adbCommand = stringResource(R.string.adb_command)
 
@@ -57,8 +60,82 @@ fun MainScreen(viewModel: MainViewModel, context: Context) {
         Text(
             "USB Debug Auto",
             style = MaterialTheme.typography.headlineLarge,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 8.dp),
+            color = MaterialTheme.colorScheme.onBackground
         )
+
+        // Current Status Card - NEW
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            )
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    "Current Status",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "Developer Options:",
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Text(
+                        when (developerOptionsEnabled) {
+                            true -> "✓ ENABLED"
+                            false -> "✗ DISABLED"
+                            null -> "..."
+                        },
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = when (developerOptionsEnabled) {
+                                true -> Color(0xFF4CAF50)
+                                false -> Color(0xFFF44336)
+                                null -> Color.Gray
+                            }
+                        ),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "USB Debugging:",
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Text(
+                        when (adbEnabled) {
+                            true -> "✓ ENABLED"
+                            false -> "✗ DISABLED"
+                            null -> "..."
+                        },
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = when (adbEnabled) {
+                                true -> Color(0xFF4CAF50)
+                                false -> Color(0xFFF44336)
+                                null -> Color.Gray
+                            }
+                        ),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
+        }
 
         // Permission Status Card
         PermissionStatusCard(

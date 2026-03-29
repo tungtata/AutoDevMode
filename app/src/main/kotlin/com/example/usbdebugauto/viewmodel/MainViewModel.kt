@@ -53,11 +53,18 @@ class MainViewModel : ViewModel() {
     private val _autoDisableAdb = MutableStateFlow(false)
     val autoDisableAdb: StateFlow<Boolean> = _autoDisableAdb.asStateFlow()
 
-    private val _detectionMode = MutableStateFlow(DetectionMode.BALANCED)
+    private val _detectionMode = MutableStateFlow(DetectionMode.LOOSE)
     val detectionMode: StateFlow<DetectionMode> = _detectionMode.asStateFlow()
 
     private val _delaySeconds = MutableStateFlow(0)
     val delaySeconds: StateFlow<Int> = _delaySeconds.asStateFlow()
+
+    // Current status flows
+    private val _developerOptionsEnabled = MutableStateFlow<Boolean?>(null)
+    val developerOptionsEnabled: StateFlow<Boolean?> = _developerOptionsEnabled.asStateFlow()
+
+    private val _adbEnabled = MutableStateFlow<Boolean?>(null)
+    val adbEnabled: StateFlow<Boolean?> = _adbEnabled.asStateFlow()
 
     /**
      * Initialize the ViewModel with context
@@ -116,10 +123,40 @@ class MainViewModel : ViewModel() {
         // Check permission initially
         checkPermission()
 
+        // Refresh status initially
+        refreshStatus()
+
+        // Start periodic status refresh (every 2 seconds)
+        viewModelScope.launch {
+            while (true) {
+                delay(2000)
+                refreshStatus()
+            }
+        }
+
         // Register USB receiver
         registerUsbReceiver(context)
 
         logRepository.addLog("App initialized successfully")
+    }
+
+    private fun refreshStatus() {
+        val devOpt = settingsController.getDeveloperOptionsState()
+        val adb = settingsController.getAdbState()
+        
+        if (devOpt != _developerOptionsEnabled.value) {
+            _developerOptionsEnabled.value = devOpt
+            if (devOpt != null) {
+                logRepository.addLog("Developer Options: ${if (devOpt) "ENABLED" else "DISABLED"}")
+            }
+        }
+        
+        if (adb != _adbEnabled.value) {
+            _adbEnabled.value = adb
+            if (adb != null) {
+                logRepository.addLog("USB Debugging: ${if (adb) "ENABLED" else "DISABLED"}")
+            }
+        }
     }
 
     private fun registerUsbReceiver(context: Context) {
