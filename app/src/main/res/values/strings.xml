@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">USB Debug Auto</string>
+    <string name="permission_status">Permission Status</string>
+    <string name="granted">GRANTED</string>
+    <string name="not_granted">NOT GRANTED</string>
+    <string name="check_permission">Check Permission</string>
+    <string name="copy_adb_command">Copy ADB Command</string>
+    <string name="adb_command">adb shell pm grant com.example.usbdebugauto android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="enable_automation">Enable Automation</string>
+    <string name="auto_enable_dev_options">Auto Enable Developer Options</string>
+    <string name="auto_enable_adb">Auto Enable USB Debugging</string>
+    <string name="auto_disable_dev_options">Auto Disable Developer Options on USB Disconnect</string>
+    <string name="auto_disable_adb">Auto Disable USB Debugging on USB Disconnect</string>
+    <string name="detection_mode">USB Detection Mode</string>
+    <string name="delay_seconds">Delay Before Auto-Enable (seconds)</string>
+    <string name="manual_controls">Manual Controls</string>
+    <string name="enable_dev_options">Enable Developer Options</string>
+    <string name="disable_dev_options">Disable Developer Options</string>
+    <string name="enable_adb">Enable USB Debugging</string>
+    <string name="disable_adb">Disable USB Debugging</string>
+    <string name="logs">Activity Logs</string>
+    <string name="clear_logs">Clear Logs</string>
+    <string name="copied">Copied to clipboard</string>
+    <string name="settings">Settings</string>
+</resources>
