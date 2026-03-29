@@ -37,14 +37,27 @@ class MainViewModel : ViewModel() {
     private val _logs = MutableStateFlow<List<LogEntry>>(emptyList())
     val logs: StateFlow<List<LogEntry>> = _logs.asStateFlow()
 
-    // Settings flows (from repository)
-    lateinit var automationEnabled: StateFlow<Boolean>
-    lateinit var autoEnableDeveloperOptions: StateFlow<Boolean>
-    lateinit var autoEnableAdb: StateFlow<Boolean>
-    lateinit var autoDisableDeveloperOptions: StateFlow<Boolean>
-    lateinit var autoDisableAdb: StateFlow<Boolean>
-    lateinit var detectionMode: StateFlow<DetectionMode>
-    lateinit var delaySeconds: StateFlow<Int>
+    // Settings flows (from repository) - Initialize with default values
+    private val _automationEnabled = MutableStateFlow(true)
+    val automationEnabled: StateFlow<Boolean> = _automationEnabled.asStateFlow()
+
+    private val _autoEnableDeveloperOptions = MutableStateFlow(true)
+    val autoEnableDeveloperOptions: StateFlow<Boolean> = _autoEnableDeveloperOptions.asStateFlow()
+
+    private val _autoEnableAdb = MutableStateFlow(true)
+    val autoEnableAdb: StateFlow<Boolean> = _autoEnableAdb.asStateFlow()
+
+    private val _autoDisableDeveloperOptions = MutableStateFlow(false)
+    val autoDisableDeveloperOptions: StateFlow<Boolean> = _autoDisableDeveloperOptions.asStateFlow()
+
+    private val _autoDisableAdb = MutableStateFlow(false)
+    val autoDisableAdb: StateFlow<Boolean> = _autoDisableAdb.asStateFlow()
+
+    private val _detectionMode = MutableStateFlow(DetectionMode.BALANCED)
+    val detectionMode: StateFlow<DetectionMode> = _detectionMode.asStateFlow()
+
+    private val _delaySeconds = MutableStateFlow(0)
+    val delaySeconds: StateFlow<Int> = _delaySeconds.asStateFlow()
 
     /**
      * Initialize the ViewModel with context
@@ -56,28 +69,42 @@ class MainViewModel : ViewModel() {
         settingsController = SecureSettingsController(context, logRepository)
         usbEvaluator = UsbDetectionEvaluator(logRepository)
 
-        // Initialize settings flows - convert from Flow to StateFlow
-        automationEnabled = settingsRepository.automationEnabled.stateIn(
-            viewModelScope, SharingStarted.Lazily, true
-        )
-        autoEnableDeveloperOptions = settingsRepository.autoEnableDeveloperOptions.stateIn(
-            viewModelScope, SharingStarted.Lazily, true
-        )
-        autoEnableAdb = settingsRepository.autoEnableAdb.stateIn(
-            viewModelScope, SharingStarted.Lazily, true
-        )
-        autoDisableDeveloperOptions = settingsRepository.autoDisableDeveloperOptions.stateIn(
-            viewModelScope, SharingStarted.Lazily, false
-        )
-        autoDisableAdb = settingsRepository.autoDisableAdb.stateIn(
-            viewModelScope, SharingStarted.Lazily, false
-        )
-        detectionMode = settingsRepository.detectionMode.stateIn(
-            viewModelScope, SharingStarted.Lazily, DetectionMode.BALANCED
-        )
-        delaySeconds = settingsRepository.delaySeconds.stateIn(
-            viewModelScope, SharingStarted.Lazily, 0
-        )
+        // Initialize settings flows - sync repository values to local StateFlows
+        viewModelScope.launch {
+            settingsRepository.automationEnabled.collect { value ->
+                _automationEnabled.value = value
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.autoEnableDeveloperOptions.collect { value ->
+                _autoEnableDeveloperOptions.value = value
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.autoEnableAdb.collect { value ->
+                _autoEnableAdb.value = value
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.autoDisableDeveloperOptions.collect { value ->
+                _autoDisableDeveloperOptions.value = value
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.autoDisableAdb.collect { value ->
+                _autoDisableAdb.value = value
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.detectionMode.collect { value ->
+                _detectionMode.value = value
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.delaySeconds.collect { value ->
+                _delaySeconds.value = value
+            }
+        }
 
         // Collect logs
         viewModelScope.launch {
