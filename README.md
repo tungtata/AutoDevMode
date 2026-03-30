@@ -57,7 +57,7 @@ app/
 Quyền này **không thể tự cấp** và phải được cấp bởi **ADB** (qua máy tính):
 
 ```bash
-adb shell pm grant com.example.usbdebugauto android.permission.WRITE_SECURE_SETTINGS
+adb shell pm grant com.tungtata.usbdebugauto android.permission.WRITE_SECURE_SETTINGS
 ```
 
 Bạn cần:
@@ -80,10 +80,11 @@ Bạn cần:
 - **Auto Enable USB Debugging**: Tự động bật USB Debugging
 - **Auto Disable Developer Options on Disconnect**: Tự động tắt Developer Options khi rút USB
 - **Auto Disable USB Debugging on Disconnect**: Tự động tắt USB Debugging khi rút USB
-- **USB Detection Mode**: Chọn cách phát hiện USB data
+~- **USB Detection Mode**: Chọn cách phát hiện USB data
   - **STRICT**: Chỉ coi là data nếu configuration > 0
   - **BALANCED**: Coi là data nếu configuration > 0 HOẶC có mtp/ptp/rndis/adb (mặc định)
-  - **LOOSE**: Coi mọi kết nối USB là data
+  - **LOOSE**: Coi mọi kết nối USB là data~
+  Giờ mặc định chỉ chế độ LOOSE vì các chế độ khác hoạt động không ổn sau khi test
 - **Delay Before Auto-Enable**: Độ trễ trước khi tự động bật (0/2/5/10 giây)
 
 #### Manual Controls
@@ -119,7 +120,7 @@ val charging_dp: Boolean     // Sạc qua display port
 
 ### Đánh giá theo Detection Mode
 
-**STRICT**: `connected && configuration > 0`
+~**STRICT**: `connected && configuration > 0`
 - Chỉ coi là data khi configuration được set (máy tính đã recognize)
 - Ít false positives nhất
 
@@ -129,7 +130,7 @@ val charging_dp: Boolean     // Sạc qua display port
 
 **LOOSE**: `connected`
 - Mọi kết nối USB đều coi là data
-- Có thể có false positives (charge-only bị nhận dạng thành data)
+- Có thể có false positives (charge-only bị nhận dạng thành data)~
 
 ## Kiến trúc code
 
@@ -221,14 +222,14 @@ val charging_dp: Boolean     // Sạc qua display port
 4. Run: Chọn device hoặc emulator trong Android Studio
 5. Sau khi app cài đặt, chạy ADB command để cấp quyền:
    ```bash
-   adb shell pm grant com.example.usbdebugauto android.permission.WRITE_SECURE_SETTINGS
+   adb shell pm grant com.tungtata.usbdebugauto android.permission.WRITE_SECURE_SETTINGS
    ```
 
 ## Troubleshooting
 
 ### "WRITE_SECURE_SETTINGS not granted"
 - Kiểm tra đã chạy ADB command chưa
-- Kiểm tra package name có đúng không: com.example.usbdebugauto
+- Kiểm tra package name có đúng không: com.tungtata.usbdebugauto
 - Thử chạy: `adb shell pm list permissions | grep WRITE_SECURE_SETTINGS`
 
 ### Auto-enable không hoạt động
