@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import com.tungtata.usbdebugauto.DarkModePreference
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -19,6 +20,7 @@ class SettingsRepository(private val context: Context) {
         private val AUTO_DISABLE_ADB = booleanPreferencesKey("auto_disable_adb")
         private val DELAY_SECONDS = intPreferencesKey("delay_seconds")
         private val SHOW_STATUS_TOAST = booleanPreferencesKey("show_status_toast")
+        private val DARK_MODE_PREFERENCE = stringPreferencesKey("dark_mode_preference")
     }
 
     val permissionGranted: Flow<Boolean> = context.dataStore.data
@@ -44,6 +46,16 @@ class SettingsRepository(private val context: Context) {
 
     val showStatusToast: Flow<Boolean> = context.dataStore.data
         .map { it[SHOW_STATUS_TOAST] ?: false }
+
+    val darkModePreference: Flow<DarkModePreference> = context.dataStore.data
+        .map {
+            val value = it[DARK_MODE_PREFERENCE] ?: "AUTO"
+            try {
+                DarkModePreference.valueOf(value)
+            } catch (e: Exception) {
+                DarkModePreference.AUTO
+            }
+        }
 
     suspend fun setPermissionGranted(granted: Boolean) {
         context.dataStore.edit { it[PERMISSION_GRANTED] = granted }
@@ -75,5 +87,9 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setShowStatusToast(show: Boolean) {
         context.dataStore.edit { it[SHOW_STATUS_TOAST] = show }
+    }
+
+    suspend fun setDarkModePreference(preference: DarkModePreference) {
+        context.dataStore.edit { it[DARK_MODE_PREFERENCE] = preference.name }
     }
 }

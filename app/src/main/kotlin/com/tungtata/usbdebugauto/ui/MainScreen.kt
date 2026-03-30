@@ -3,6 +3,7 @@ package com.tungtata.usbdebugauto.ui
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,16 +26,15 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tungtata.usbdebugauto.R
+import com.tungtata.usbdebugauto.DarkModePreference
 import com.tungtata.usbdebugauto.viewmodel.MainViewModel
 
 @Composable
 fun MainScreen(viewModel: MainViewModel, context: Context) {
-    // Initialize ViewModel
     LaunchedEffect(Unit) {
         viewModel.initialize(context)
     }
 
-    // Collect states
     val permissionGranted by viewModel.permissionGranted.collectAsState()
     val automationEnabled by viewModel.automationEnabled.collectAsState()
     val autoEnableDev by viewModel.autoEnableDeveloperOptions.collectAsState()
@@ -45,22 +46,22 @@ fun MainScreen(viewModel: MainViewModel, context: Context) {
     val developerOptionsEnabled by viewModel.developerOptionsEnabled.collectAsState()
     val adbEnabled by viewModel.adbEnabled.collectAsState()
     val showStatusToast by viewModel.showStatusToast.collectAsState()
+    val darkModePreference by viewModel.darkModePreference.collectAsState()
+
+    var showAboutDialog by remember { mutableStateOf(false) }
 
     val adbCommand = stringResource(R.string.adb_command)
 
-    // Show toast when status changes (if enabled)
-    LaunchedEffect(developerOptionsEnabled, adbEnabled, showStatusToast) {
-        if (showStatusToast) {
-            when (developerOptionsEnabled) {
-                true -> Toast.makeText(context, "✓ Developer Options: ENABLED", Toast.LENGTH_SHORT).show()
-                false -> Toast.makeText(context, "✗ Developer Options: DISABLED", Toast.LENGTH_SHORT).show()
-                else -> {}
-            }
-            when (adbEnabled) {
-                true -> Toast.makeText(context, "✓ USB Debugging: ENABLED", Toast.LENGTH_SHORT).show()
-                false -> Toast.makeText(context, "✗ USB Debugging: DISABLED", Toast.LENGTH_SHORT).show()
-                else -> {}
-            }
+    LaunchedEffect(developerOptionsEnabled, adbEnabled) {
+        when (developerOptionsEnabled) {
+            true -> Toast.makeText(context, "✅ Developer Options: ENABLED", Toast.LENGTH_SHORT).show()
+            false -> Toast.makeText(context, "❌ Developer Options: DISABLED", Toast.LENGTH_SHORT).show()
+            else -> {}
+        }
+        when (adbEnabled) {
+            true -> Toast.makeText(context, "✅ USB Debugging: ENABLED", Toast.LENGTH_SHORT).show()
+            false -> Toast.makeText(context, "❌ USB Debugging: DISABLED", Toast.LENGTH_SHORT).show()
+            else -> {}
         }
     }
 
@@ -71,84 +72,47 @@ fun MainScreen(viewModel: MainViewModel, context: Context) {
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
     ) {
-        // Title
+        // Header
         Text(
-            "USB Debug Auto",
+            "🔧 USB Debug Auto",
             style = MaterialTheme.typography.headlineLarge,
-            modifier = Modifier.padding(bottom = 8.dp),
+            modifier = Modifier.padding(bottom = 4.dp),
             color = MaterialTheme.colorScheme.onBackground
+        )
+        Text(
+            "Smart automation for developer tools",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(bottom = 24.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         // Current Status Card
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
+                .padding(bottom = 20.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer
-            )
+            ),
+            shape = RoundedCornerShape(12.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     "Current Status",
                     style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 8.dp),
+                    modifier = Modifier.padding(bottom = 12.dp),
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        "Developer Options:",
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                    Text(
-                        when (developerOptionsEnabled) {
-                            true -> "✓ ENABLED"
-                            false -> "✗ DISABLED"
-                            else -> "..."
-                        },
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = when (developerOptionsEnabled) {
-                                true -> Color(0xFF4CAF50)
-                                false -> Color(0xFFF44336)
-                                else -> Color.Gray
-                            }
-                        ),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        "USB Debugging:",
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                    Text(
-                        when (adbEnabled) {
-                            true -> "✓ ENABLED"
-                            false -> "✗ DISABLED"
-                            else -> "..."
-                        },
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = when (adbEnabled) {
-                                true -> Color(0xFF4CAF50)
-                                false -> Color(0xFFF44336)
-                                else -> Color.Gray
-                            }
-                        ),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
+                StatusRow(
+                    label = "Developer Options",
+                    isEnabled = developerOptionsEnabled
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                StatusRow(
+                    label = "USB Debugging",
+                    isEnabled = adbEnabled
+                )
             }
         }
 
@@ -161,77 +125,87 @@ fun MainScreen(viewModel: MainViewModel, context: Context) {
             viewModel.checkPermission()
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         // Automation Master Switch
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
+                .padding(bottom = 20.dp)
+                .clickable { viewModel.setAutomationEnabled(!automationEnabled) },
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+                containerColor = if (automationEnabled) 
+                    MaterialTheme.colorScheme.primaryContainer 
+                else 
+                    MaterialTheme.colorScheme.surfaceVariant
+            ),
+            shape = RoundedCornerShape(12.dp)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(20.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    stringResource(R.string.enable_automation),
-                    style = MaterialTheme.typography.titleMedium,
+                    "Automation",
+                    style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onBackground
                 )
-                Switch(
-                    checked = automationEnabled,
-                    onCheckedChange = { viewModel.setAutomationEnabled(it) }
-                )
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = if (automationEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        if (automationEnabled) "ON" else "OFF",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = if (automationEnabled) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
 
         // Settings Section
         Text(
-            stringResource(R.string.settings),
+            "⚡ Automation Settings",
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp),
+            modifier = Modifier.padding(bottom = 12.dp),
             color = MaterialTheme.colorScheme.onBackground
         )
 
-        // Auto-enable options
-        SettingCheckbox(
-            label = stringResource(R.string.auto_enable_dev_options),
-            checked = autoEnableDev,
-            onCheckedChange = { viewModel.setAutoEnableDeveloperOptions(it) },
-            textColor = MaterialTheme.colorScheme.onBackground
+        SettingToggle(
+            label = "Auto-enable Developer Options",
+            isEnabled = autoEnableDev,
+            onToggle = { viewModel.setAutoEnableDeveloperOptions(it) }
         )
 
-        SettingCheckbox(
-            label = stringResource(R.string.auto_enable_adb),
-            checked = autoEnableAdb,
-            onCheckedChange = { viewModel.setAutoEnableAdb(it) },
-            textColor = MaterialTheme.colorScheme.onBackground
+        SettingToggle(
+            label = "Auto-enable USB Debugging",
+            isEnabled = autoEnableAdb,
+            onToggle = { viewModel.setAutoEnableAdb(it) }
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Auto-disable options
-        SettingCheckbox(
-            label = stringResource(R.string.auto_disable_dev_options),
-            checked = autoDisableDev,
-            onCheckedChange = { viewModel.setAutoDisableDeveloperOptions(it) },
-            textColor = MaterialTheme.colorScheme.onBackground
+        SettingToggle(
+            label = "Auto-disable Dev Options on disconnect",
+            isEnabled = autoDisableDev,
+            onToggle = { viewModel.setAutoDisableDeveloperOptions(it) }
         )
 
-        SettingCheckbox(
-            label = stringResource(R.string.auto_disable_adb),
-            checked = autoDisableAdb,
-            onCheckedChange = { viewModel.setAutoDisableAdb(it) },
-            textColor = MaterialTheme.colorScheme.onBackground
+        SettingToggle(
+            label = "Auto-disable USB Debugging on disconnect",
+            isEnabled = autoDisableAdb,
+            onToggle = { viewModel.setAutoDisableAdb(it) }
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Delay Selector
         DelaySelector(
@@ -242,21 +216,20 @@ fun MainScreen(viewModel: MainViewModel, context: Context) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Show Status Toast Option
-        SettingCheckbox(
-            label = "Show status toast notifications",
-            checked = showStatusToast,
-            onCheckedChange = { viewModel.setShowStatusToast(it) },
+        // Dark Mode Selector
+        DarkModeSelector(
+            currentMode = darkModePreference,
+            onModeSelected = { viewModel.setDarkModePreference(it) },
             textColor = MaterialTheme.colorScheme.onBackground
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         // Manual Controls Section
         Text(
-            stringResource(R.string.manual_controls),
+            "🎮 Manual Controls",
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp),
+            modifier = Modifier.padding(bottom = 12.dp),
             color = MaterialTheme.colorScheme.onBackground
         )
 
@@ -271,25 +244,27 @@ fun MainScreen(viewModel: MainViewModel, context: Context) {
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary
-                )
+                ),
+                shape = RoundedCornerShape(8.dp)
             ) {
-                Text(stringResource(R.string.enable_dev_options), fontSize = 12.sp)
+                Text("✓ Enable Dev", fontSize = 12.sp)
             }
             Button(
                 onClick = { viewModel.disableDeveloperOptions() },
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error
-                )
+                ),
+                shape = RoundedCornerShape(8.dp)
             ) {
-                Text(stringResource(R.string.disable_dev_options), fontSize = 12.sp)
+                Text("✗ Disable Dev", fontSize = 12.sp)
             }
         }
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
+                .padding(bottom = 20.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Button(
@@ -297,18 +272,20 @@ fun MainScreen(viewModel: MainViewModel, context: Context) {
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary
-                )
+                ),
+                shape = RoundedCornerShape(8.dp)
             ) {
-                Text(stringResource(R.string.enable_adb), fontSize = 12.sp)
+                Text("✓ Enable Debug", fontSize = 12.sp)
             }
             Button(
                 onClick = { viewModel.disableAdb() },
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error
-                )
+                ),
+                shape = RoundedCornerShape(8.dp)
             ) {
-                Text(stringResource(R.string.disable_adb), fontSize = 12.sp)
+                Text("✗ Disable Debug", fontSize = 12.sp)
             }
         }
 
@@ -316,21 +293,22 @@ fun MainScreen(viewModel: MainViewModel, context: Context) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 8.dp),
+                .padding(bottom = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                stringResource(R.string.logs),
+                "📋 Activity Log",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onBackground
             )
             Button(
                 onClick = { viewModel.clearLogs() },
                 modifier = Modifier.height(36.dp),
-                contentPadding = PaddingValues(8.dp)
+                contentPadding = PaddingValues(8.dp),
+                shape = RoundedCornerShape(6.dp)
             ) {
-                Text(stringResource(R.string.clear_logs), fontSize = 11.sp)
+                Text("Clear", fontSize = 11.sp)
             }
         }
 
@@ -338,10 +316,11 @@ fun MainScreen(viewModel: MainViewModel, context: Context) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(max = 400.dp),
+                .heightIn(max = 300.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface
-            )
+            ),
+            shape = RoundedCornerShape(12.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -351,7 +330,7 @@ fun MainScreen(viewModel: MainViewModel, context: Context) {
             ) {
                 if (logs.isEmpty()) {
                     Text(
-                        "No logs yet",
+                        "No activity yet. Waiting for events...",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -370,7 +349,117 @@ fun MainScreen(viewModel: MainViewModel, context: Context) {
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Footer - About and GitHub
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = { showAboutDialog = true },
+                modifier = Modifier.height(36.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ),
+                shape = RoundedCornerShape(8.dp),
+                contentPadding = PaddingValues(12.dp, 0.dp)
+            ) {
+                Text("About", fontSize = 13.sp)
+            }
+
+            Button(
+                onClick = {
+                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                        data = android.net.Uri.parse("https://github.com/tungtata/AutoDevMode")
+                    }
+                    context.startActivity(intent)
+                },
+                modifier = Modifier.height(36.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ),
+                shape = RoundedCornerShape(8.dp),
+                contentPadding = PaddingValues(12.dp, 0.dp)
+            ) {
+                Text("GitHub", fontSize = 13.sp)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+    }
+
+    // About Dialog
+    if (showAboutDialog) {
+        AlertDialog(
+            onDismissRequest = { showAboutDialog = false },
+            title = {
+                Text(
+                    "ℹ️ About USB Debug Auto",
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            },
+            text = {
+                Text(
+                    "USB Debug Auto v1.0\n\n" +
+                            "Automatically enable/disable Developer Options and USB Debugging when USB connection is detected.\n\n" +
+                            "✨ Features:\n" +
+                            "• No root required\n" +
+                            "• Requires WRITE_SECURE_SETTINGS permission\n" +
+                            "• Works even when app is closed\n" +
+                            "• Customizable automation rules\n" +
+                            "• Beautiful Material 3 design\n\n" +
+                            "🔗 GitHub: github.com/tungtata/AutoDevMode",
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { showAboutDialog = false },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Got it!")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun StatusRow(
+    label: String,
+    isEnabled: Boolean?
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            label,
+            color = MaterialTheme.colorScheme.onPrimaryContainer
+        )
+        Text(
+            when (isEnabled) {
+                true -> "ENABLED"
+                false -> "DISABLED"
+                else -> "Loading..."
+            },
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+            ),
+            color = when (isEnabled) {
+                true -> Color(0xFF4CAF50)
+                false -> Color(0xFFF44336)
+                else -> Color(0xFFFFC107)
+            }
+        )
     }
 }
 
@@ -389,7 +478,8 @@ fun PermissionStatusCard(
             } else {
                 MaterialTheme.colorScheme.errorContainer
             }
-        )
+        ),
+        shape = RoundedCornerShape(12.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -413,18 +503,18 @@ fun PermissionStatusCard(
                         }
                     )
                     Text(
-                        stringResource(R.string.permission_status),
+                        "🔐 Permission Status",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                 }
-                Button(onClick = onCheckClick) {
-                    Text(stringResource(R.string.check_permission))
+                Button(onClick = onCheckClick, shape = RoundedCornerShape(6.dp)) {
+                    Text("Check")
                 }
             }
 
             Text(
-                if (permissionGranted) stringResource(R.string.granted) else stringResource(R.string.not_granted),
+                if (permissionGranted) "✅ Permission Granted" else "❌ Permission Not Granted",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 12.dp),
                 color = MaterialTheme.colorScheme.onBackground
@@ -432,7 +522,7 @@ fun PermissionStatusCard(
 
             if (!permissionGranted) {
                 Text(
-                    "To grant permission, run this ADB command on your computer while the device is connected:",
+                    "Run this command on your computer:",
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(bottom = 8.dp),
                     color = MaterialTheme.colorScheme.onBackground
@@ -444,7 +534,8 @@ fun PermissionStatusCard(
                         .padding(bottom = 8.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surface
-                    )
+                    ),
+                    shape = RoundedCornerShape(8.dp)
                 ) {
                     SelectionContainer {
                         Text(
@@ -461,14 +552,15 @@ fun PermissionStatusCard(
                     onClick = {
                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         clipboard.setPrimaryClip(ClipData.newPlainText("ADB Command", adbCommand))
-                        Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Copied to clipboard!", Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier.align(Alignment.End),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
-                    )
+                    ),
+                    shape = RoundedCornerShape(6.dp)
                 ) {
-                    Text(stringResource(R.string.copy_adb_command))
+                    Text("📋 Copy Command")
                 }
             }
         }
@@ -476,7 +568,53 @@ fun PermissionStatusCard(
 }
 
 @Composable
+fun SettingToggle(
+    label: String,
+    isEnabled: Boolean,
+    onToggle: (Boolean) -> Unit,
+    textColor: Color = MaterialTheme.colorScheme.onBackground
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp)
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                shape = RoundedCornerShape(8.dp)
+            )
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            label,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f),
+            color = textColor
+        )
+        Row(
+            modifier = Modifier
+                .background(
+                    color = if (isEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(6.dp)
+                )
+                .clickable { onToggle(!isEnabled) }
+                .padding(horizontal = 8.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                if (isEnabled) "ON" else "OFF",
+                style = MaterialTheme.typography.labelSmall,
+                color = if (isEnabled) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
 fun SettingCheckbox(
+    emoji: String = "",
     label: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
@@ -490,7 +628,7 @@ fun SettingCheckbox(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            label,
+            "$emoji $label".trim(),
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.weight(1f),
             color = textColor
@@ -510,7 +648,7 @@ fun DelaySelector(
 
     Column {
         Text(
-            stringResource(R.string.delay_seconds),
+            "⏱️ Auto-enable Delay",
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(bottom = 8.dp),
             color = textColor
@@ -519,7 +657,7 @@ fun DelaySelector(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
-                .border(1.dp, MaterialTheme.colorScheme.outline, shape = RoundedCornerShape(4.dp))
+                .border(1.dp, MaterialTheme.colorScheme.outline, shape = RoundedCornerShape(8.dp))
                 .clickable { expanded = !expanded }
                 .padding(12.dp)
         ) {
@@ -540,6 +678,89 @@ fun DelaySelector(
                     }
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun DarkModeSelector(
+    currentMode: DarkModePreference,
+    onModeSelected: (DarkModePreference) -> Unit,
+    textColor: Color = MaterialTheme.colorScheme.onBackground
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            "🌙 Dark Mode",
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(bottom = 12.dp),
+            color = textColor
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            DarkModeButton(
+                label = "☀️ Light",
+                isSelected = currentMode == DarkModePreference.LIGHT,
+                onClick = { onModeSelected(DarkModePreference.LIGHT) },
+                modifier = Modifier.weight(1f)
+            )
+
+            DarkModeButton(
+                label = "🌓 Auto",
+                isSelected = currentMode == DarkModePreference.AUTO,
+                onClick = { onModeSelected(DarkModePreference.AUTO) },
+                modifier = Modifier.weight(1f)
+            )
+
+            DarkModeButton(
+                label = "🌙 Dark",
+                isSelected = currentMode == DarkModePreference.DARK,
+                onClick = { onModeSelected(DarkModePreference.DARK) },
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun DarkModeButton(
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .clickable(onClick = onClick)
+            .height(80.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) {
+                MaterialTheme.colorScheme.primaryContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            }
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                label,
+                style = MaterialTheme.typography.labelMedium,
+                color = if (isSelected) {
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                }
+            )
         }
     }
 }

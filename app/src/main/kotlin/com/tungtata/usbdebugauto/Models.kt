@@ -16,3 +16,7 @@ data class LogEntry(
 enum class DetectionMode {
     STRICT, BALANCED, LOOSE
 }
+
+enum class DarkModePreference {
+    LIGHT, DARK, AUTO
+}

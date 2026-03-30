@@ -23,6 +23,15 @@
             </intent-filter>
         </activity>
 
+        <!-- Static USB State Receiver - listens to USB events even when app is closed -->
+        <receiver
+            android:name=".receiver.UsbStateReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_STATE" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

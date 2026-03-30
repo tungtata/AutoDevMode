@@ -6,6 +6,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import com.tungtata.usbdebugauto.DarkModePreference
 
 private val DarkColorScheme = darkColorScheme(
     primary = Color(0xFF6200EE),
@@ -61,9 +62,16 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun UsbDebugAutoTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkModePreference: DarkModePreference = DarkModePreference.AUTO,
     content: @Composable () -> Unit
 ) {
+    val systemDarkTheme = isSystemInDarkTheme()
+    val darkTheme = when (darkModePreference) {
+        DarkModePreference.LIGHT -> false
+        DarkModePreference.DARK -> true
+        DarkModePreference.AUTO -> systemDarkTheme
+    }
+
     val colorScheme = when {
         darkTheme -> DarkColorScheme
         else -> LightColorScheme

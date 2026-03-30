@@ -3,6 +3,8 @@ package com.tungtata.usbdebugauto
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModelProvider
 import com.tungtata.usbdebugauto.ui.MainScreen
 import com.tungtata.usbdebugauto.ui.UsbDebugAutoTheme
@@ -15,7 +17,9 @@ class MainActivity : ComponentActivity() {
         val viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         setContent {
-            UsbDebugAutoTheme {
+            val darkModePreference by viewModel.darkModePreference.collectAsState()
+            
+            UsbDebugAutoTheme(darkModePreference = darkModePreference) {
                 MainScreen(viewModel, this@MainActivity)
             }
         }

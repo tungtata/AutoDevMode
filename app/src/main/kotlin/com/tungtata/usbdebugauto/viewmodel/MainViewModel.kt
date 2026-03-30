@@ -1,14 +1,13 @@
 package com.tungtata.usbdebugauto.viewmodel
 
 import android.content.Context
-import android.content.IntentFilter
 import android.provider.Settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tungtata.usbdebugauto.DetectionMode
+import com.tungtata.usbdebugauto.DarkModePreference
 import com.tungtata.usbdebugauto.LogEntry
 import com.tungtata.usbdebugauto.controller.SecureSettingsController
-import com.tungtata.usbdebugauto.receiver.UsbStateReceiver
 import com.tungtata.usbdebugauto.repository.LogRepository
 import com.tungtata.usbdebugauto.repository.SettingsRepository
 import kotlinx.coroutines.delay
@@ -21,7 +20,6 @@ class MainViewModel : ViewModel() {
     private lateinit var settingsRepository: SettingsRepository
     private lateinit var logRepository: LogRepository
     private lateinit var settingsController: SecureSettingsController
-    private var usbStateReceiver: UsbStateReceiver? = null
     private var context: Context? = null
 
     private val _permissionGranted = MutableStateFlow(false)
@@ -60,16 +58,14 @@ class MainViewModel : ViewModel() {
     private val _showStatusToast = MutableStateFlow(false)
     val showStatusToast: StateFlow<Boolean> = _showStatusToast.asStateFlow()
 
+    private val _darkModePreference = MutableStateFlow(DarkModePreference.AUTO)
+    val darkModePreference: StateFlow<DarkModePreference> = _darkModePreference.asStateFlow()
+
     fun initialize(context: Context) {
         this.context = context
         settingsRepository = SettingsRepository(context)
         logRepository = LogRepository()
         settingsController = SecureSettingsController(context)
-
-        // Register USB state receiver
-        usbStateReceiver = UsbStateReceiver()
-        val filter = IntentFilter("android.hardware.usb.action.USB_STATE")
-        context.registerReceiver(usbStateReceiver, filter, Context.RECEIVER_EXPORTED)
 
         viewModelScope.launch {
             settingsRepository.permissionGranted.collect { _permissionGranted.value = it }
@@ -104,6 +100,10 @@ class MainViewModel : ViewModel() {
         }
 
         viewModelScope.launch {
+            settingsRepository.darkModePreference.collect { _darkModePreference.value = it }
+        }
+
+        viewModelScope.launch {
             while (true) {
                 refreshStatus()
                 delay(2000)
@@ -113,13 +113,6 @@ class MainViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        if (usbStateReceiver != null && context != null) {
-            try {
-                context!!.unregisterReceiver(usbStateReceiver)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
     }
 
     fun checkPermission() {
@@ -182,6 +175,12 @@ class MainViewModel : ViewModel() {
     fun setShowStatusToast(show: Boolean) {
         viewModelScope.launch {
             settingsRepository.setShowStatusToast(show)
+        }
+    }
+
+    fun setDarkModePreference(preference: DarkModePreference) {
+        viewModelScope.launch {
+            settingsRepository.setDarkModePreference(preference)
         }
     }
 
