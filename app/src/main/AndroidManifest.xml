@@ -23,16 +23,6 @@
             </intent-filter>
         </activity>
 
-        <!-- USB State Receiver for detecting USB connection changes -->
-        <!-- This receiver listens to system broadcasts about USB state -->
-        <receiver
-            android:name=".receiver.UsbStateReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_STATE" />
-            </intent-filter>
-        </receiver>
-
     </application>
 
 </manifest>

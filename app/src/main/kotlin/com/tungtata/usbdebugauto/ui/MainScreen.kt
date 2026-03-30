@@ -51,22 +51,15 @@ fun MainScreen(viewModel: MainViewModel, context: Context) {
     // Show toast when status changes (if enabled)
     LaunchedEffect(developerOptionsEnabled, adbEnabled, showStatusToast) {
         if (showStatusToast) {
-            val devStatus = when (developerOptionsEnabled) {
-                true -> "✓ Developer Options: ENABLED"
-                false -> "✗ Developer Options: DISABLED"
-                null -> null
+            when (developerOptionsEnabled) {
+                true -> Toast.makeText(context, "✓ Developer Options: ENABLED", Toast.LENGTH_SHORT).show()
+                false -> Toast.makeText(context, "✗ Developer Options: DISABLED", Toast.LENGTH_SHORT).show()
+                else -> {}
             }
-            val adbStatus = when (adbEnabled) {
-                true -> "✓ USB Debugging: ENABLED"
-                false -> "✗ USB Debugging: DISABLED"
-                null -> null
-            }
-
-            if (devStatus != null) {
-                Toast.makeText(context, devStatus, Toast.LENGTH_SHORT).show()
-            }
-            if (adbStatus != null) {
-                Toast.makeText(context, adbStatus, Toast.LENGTH_SHORT).show()
+            when (adbEnabled) {
+                true -> Toast.makeText(context, "✓ USB Debugging: ENABLED", Toast.LENGTH_SHORT).show()
+                false -> Toast.makeText(context, "✗ USB Debugging: DISABLED", Toast.LENGTH_SHORT).show()
+                else -> {}
             }
         }
     }
@@ -118,13 +111,13 @@ fun MainScreen(viewModel: MainViewModel, context: Context) {
                         when (developerOptionsEnabled) {
                             true -> "✓ ENABLED"
                             false -> "✗ DISABLED"
-                            null -> "..."
+                            else -> "..."
                         },
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = when (developerOptionsEnabled) {
                                 true -> Color(0xFF4CAF50)
                                 false -> Color(0xFFF44336)
-                                null -> Color.Gray
+                                else -> Color.Gray
                             }
                         ),
                         color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -144,13 +137,13 @@ fun MainScreen(viewModel: MainViewModel, context: Context) {
                         when (adbEnabled) {
                             true -> "✓ ENABLED"
                             false -> "✗ DISABLED"
-                            null -> "..."
+                            else -> "..."
                         },
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = when (adbEnabled) {
                                 true -> Color(0xFF4CAF50)
                                 false -> Color(0xFFF44336)
-                                null -> Color.Gray
+                                else -> Color.Gray
                             }
                         ),
                         color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -249,7 +242,7 @@ fun MainScreen(viewModel: MainViewModel, context: Context) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Show Status Toast Option - NEW
+        // Show Status Toast Option
         SettingCheckbox(
             label = "Show status toast notifications",
             checked = showStatusToast,
