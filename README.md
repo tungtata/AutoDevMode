@@ -7,7 +7,7 @@ Một ứng dụng Android cho phép tự động bật/tắt Developer Options 
 - ✅ Theo dõi thay đổi trạng thái kết nối USB
 - ✅ Tự động bật Developer Options và USB Debugging khi phát hiện USB data connection
 - ✅ Tự động tắt lại các tính năng trên khi rút cáp USB (tuỳ chọn)
-- ✅ 3 chế độ phát hiện USB: STRICT, BALANCED, LOOSE
+~~- ✅ 3 chế độ phát hiện USB: STRICT, BALANCED, LOOSE~~
 - ✅ Hỗ trợ độ trễ (0s, 2s, 5s, 10s) trước khi tự động bật
 - ✅ Hiển thị nhật ký chi tiết về các sự kiện USB
 - ✅ Không cần root, chỉ cần cấp quyền WRITE_SECURE_SETTINGS qua ADB
@@ -81,11 +81,11 @@ Bạn cần:
 - **Auto Disable Developer Options on Disconnect**: Tự động tắt Developer Options khi rút USB
 - **Auto Disable USB Debugging on Disconnect**: Tự động tắt USB Debugging khi rút USB
 ~~
-- **USB Detection Mode**: Chọn cách phát hiện USB data
+~~- **USB Detection Mode**: Chọn cách phát hiện USB data
   - **STRICT**: Chỉ coi là data nếu configuration > 0
   - **BALANCED**: Coi là data nếu configuration > 0 HOẶC có mtp/ptp/rndis/adb (mặc định)
-  - **LOOSE**: Coi mọi kết nối USB là data ~~
-  Giờ mặc định chỉ chế độ LOOSE vì các chế độ khác hoạt động không ổn sau khi test
+  - **LOOSE**: Coi mọi kết nối USB là data~~
+  **Giờ mặc định chỉ chế độ LOOSE vì các chế độ khác hoạt động không ổn sau khi test**
 - **Delay Before Auto-Enable**: Độ trễ trước khi tự động bật (0/2/5/10 giây)
 
 #### Manual Controls
@@ -105,7 +105,7 @@ Bạn cần:
 App nghe `android.hardware.usb.action.USB_STATE` broadcast được gửi bởi Android khi:
 - Cắm USB vào điện thoại
 - Rút USB khỏi điện thoại
-- Chuyển đổi USB mode (MTP, PTP, RNDIS, ADB, v.v.)
+~~- Chuyển đổi USB mode (MTP, PTP, RNDIS, ADB, v.v.)~~
 
 ### Parsing
 ```kotlin
@@ -121,7 +121,7 @@ val charging_dp: Boolean     // Sạc qua display port
 
 ### Đánh giá theo Detection Mode
 
-~~ **STRICT**: `connected && configuration > 0`
+~~**STRICT**: `connected && configuration > 0`
 - Chỉ coi là data khi configuration được set (máy tính đã recognize)
 - Ít false positives nhất
 
@@ -131,7 +131,7 @@ val charging_dp: Boolean     // Sạc qua display port
 
 **LOOSE**: `connected`
 - Mọi kết nối USB đều coi là data
-- Có thể có false positives (charge-only bị nhận dạng thành data) ~~
+- Có thể có false positives (charge-only bị nhận dạng thành data)~~
 
 ## Kiến trúc code
 
@@ -180,8 +180,8 @@ val charging_dp: Boolean     // Sạc qua display port
 ~~
 ### 2. USB Detection không 100% chính xác trên mọi máy
 - Một số OEM Android có thể không gửi đầy đủ broadcast extras
-- BALANCED mode là cách an toàn nhất để xử lý khác biệt OEM
-- Nếu app không hoạt động đúng, hãy try STRICT hoặc LOOSE mode
+~~- BALANCED mode là cách an toàn nhất để xử lý khác biệt OEM
+- Nếu app không hoạt động đúng, hãy try STRICT hoặc LOOSE mode~~
 ~~
 ### 3. Broadcast Receiver Sticky vs Dynamic
 - Manifest receiver (XML): Nhận broadcasts ngay cả khi app không chạy
